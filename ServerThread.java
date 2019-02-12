@@ -1,7 +1,7 @@
 import java.io.*;
 import java.net.*;
 
-public class ServerThread {
+public class ServerThread extends Thread{
 
     private Server server;
     private Socket socket;
@@ -15,7 +15,7 @@ public class ServerThread {
 	this.socket = socket;		   
 	this.id = socket.getPort();
     }
-
+    
     
     public void send(String message) {
 	try {
@@ -26,5 +26,32 @@ public class ServerThread {
 	    stop();
 	}
     }
+
+    public int getID() {
+	return this.id;
+    }
     
+    public void run() {
+	System.out.println("Server Thread " + id + " running.");
+	while (true) {
+	    try	{
+		server.sendToClients(id, dataIn.readUTF());
+	    } catch(IOException ioe) {
+		System.out.println(id + " ERROR reading: " + ioe.getMessage());
+		server.remove(id);
+		stop();
+	    }
+	}
+    }
+    
+    public void open() throws IOException {
+	dataIn = new DataInputStream(new BufferedInputStream(socket.getInputStream()));
+        dataOut = new DataOutputStream(new BufferedOutputStream(socket.getOutputStream()));
+    }
+    
+    public void close() throws IOException {
+	if (socket != null)    socket.close();
+	if (dataIn != null)  dataIn.close();
+	if (dataOut != null) dataOut.close();
+    }
 }

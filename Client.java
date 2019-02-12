@@ -4,23 +4,24 @@ import java.net.*;
 public class Client implements Runnable {
 
 
-    private PrintWriter printWriter = null;
-    private BufferedReader bufferedReader = null;
-    private PrintStream printStream = null;
-    private DataInputStream dataInputStream = null;
-    private String serverAddress;
     private Socket socket = null;
-    private String name;
+    private ClientThread player = null;
+    private DataInputStream dataIn = null;
+    private DataOutputStream dataOut = null;
+    private String serverAddress;
     private int port;
+    private Thread thread;
 
     public Client(String serverAddress, int port) {
 	this.serverAddress = serverAddress;
 	this.port = port;
+	connect();
     }
 
     public Socket connect() {	
 	try {
 	    socket = new Socket(serverAddress, port); 
+	    start();
 	} catch (UnknownHostException e) {
 	    e.printStackTrace();
 	} catch (IOException e) {
@@ -30,44 +31,56 @@ public class Client implements Runnable {
     }
 
     public void run() {
-	connect();
-	try {
-            Thread.currentThread().sleep(1);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-	sendMessage();
-	try {
-	socket.close();
-	} catch (IOException e) {
-	    e.printStackTrace();
+	while (thread != null) {
+	    try {
+		dataOut.writeUTF(dataIn.readLine());
+		dataOut.flush();
+	    } catch (IOException e) {
+		e.printStackTrace();
+		stop();
+	    }
 	}
     }
     
-    public void sendMessage() {
-	try {
-	    Thread.currentThread().sleep(1);
-	} catch (InterruptedException e) {
-	    e.printStackTrace();
-	}
+    public void sendMessage(String message) {
+	if (message.equals("exit"))
+	    stop();
+	else
+	    System.out.println(message);
+    }
+
+    public void start() {
 	
 	try {
-            printWriter = new PrintWriter(socket.getOutputStream(), true);
-            bufferedReader = new BufferedReader(new InputStreamReader(System.in));
-	    printStream = new PrintStream(socket.getOutputStream());
-	    dataInputStream = new DataInputStream(socket.getInputStream());
-	    String readerInput = "";
-	    while (readerInput != null && !readerInput.equals("closeConnection")) {
-		readerInput = bufferedReader.readLine();
-		printWriter.println(readerInput);
-	    }
-        } catch (IOException e) {
+	    dataIn = new DataInputStream(System.in);
+	    dataOut = new DataOutputStream(socket.getOutputStream());
+	} catch (IOException e) {
 	    e.printStackTrace();
 	}
+	if (thread == null) {
+	    player = new ClientThread(this, socket);
+	    thread = new Thread(this);
+	    thread.start();
+	}
+    }
+
+    public void stop() {
+	if (thread != null) {
+	    thread.stop();
+	    thread = null;
+	}
+	try {
+	    dataIn.close();
+	    dataOut.close();
+	    socket.close();
+	} catch (IOException e) {
+	    e.printStackTrace();
+	}
+	player.close();
+	player.stop();
     }
 
     public static void main(String args[]) {
 	Thread thread = new Thread(new Client("127.0.0.1", 1027));
-	thread.start();
     }
 }
