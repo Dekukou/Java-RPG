@@ -22,8 +22,8 @@ public class Server implements Runnable {
     public void run() {
 	while (thread != null) {
 	    try {
-		System.out.println("Wait");
 		addThread(serverSocket.accept());
+		System.out.println("Connected n*" + nb_client);
 	    } catch (IOException e) {
 		e.printStackTrace();
 	    }
@@ -38,31 +38,47 @@ public class Server implements Runnable {
     }
 
     public synchronized void sendToClients (int id, String message) {
-	if (message.equals("exit"))
+	if (message.equals("exit")) {
 	    remove(id);
-	else 
-	    for (int i = 0 ; i < nb_client; i++)
-		if (clients[i].getID() != id)
-		    clients[i].send(id + ": "+ message);
+	}
+	for (int i = 0 ; i < nb_client; i++)
+	    if (clients[i].getID() != id)
+		clients[i].send(id + ": "+ message);
     }
 
     public synchronized void remove(int id) {
 	int client_id = getClient(id);
-
+	
 	if (client_id != -1) {
 	    ServerThread deletedUser = clients[client_id];
-	    if (client_id < nb_client - 1)
-		for (int i = client_id; i < nb_client; i++)
-		    clients[i -1] = clients[i];
+	    //if (client_id <= nb_client - 1)
+	    //if (nb_client != 1) 
+	    for (int i = client_id; i < nb_client; i++)
+		clients[i] = clients[i + 1];
+		    //else
+		    //stop();
 	    nb_client--;
-	    
-	    try {
-		deletedUser.close();
-	    } catch (IOException e) {
-		e.printStackTrace();
+	    System.out.println(nb_client);
+	    if (nb_client == 0) {
+		System.out.println("STOP");
+		try {
+		    serverSocket.close();
+		    stop();
+		} catch (IOException e) {
+		    e.printStackTrace();
+		}
 	    }
+	    try {
+		//System.out.println("groot");
+		deletedUser.close();
+		//System.out.println("groot2");
+	    } catch (IOException e) {
+		e.printStackTrace();		
+	    }
+	    //	    System.out.println("groot3");
 	    deletedUser.stop();
-	}
+	    //System.out.println("groot4");
+	} 
     }
 
     public void addThread(Socket socket) {
@@ -91,8 +107,6 @@ public class Server implements Runnable {
 	    thread = null;
 	}
     }
-
-    
 
     public static void main(String args[]) {
 	Server server = null;

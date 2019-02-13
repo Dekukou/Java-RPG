@@ -6,7 +6,8 @@ public class ClientThread extends Thread {
     private Socket socket = null;
     private Client player = null;
     private DataInputStream dataIn = null;
-    
+    public boolean isClosed = false;
+
     public ClientThread(Client player, Socket socket) {
 	this.player = player;
 	this.socket = socket;
@@ -18,6 +19,7 @@ public class ClientThread extends Thread {
 	try {
 	    dataIn = new DataInputStream(socket.getInputStream());
 	} catch (IOException e) {
+	    System.out.println("groot");
 	    e.printStackTrace();
 	    player.stop();
 	}
@@ -25,20 +27,24 @@ public class ClientThread extends Thread {
     
     public void close() {
 	try {
-	    dataIn.close();
-	} catch (IOException e) {
+	isClosed = true;
+	socket.close();
+	} catch (IOException e) {	    
 	    e.printStackTrace();
 	}
     }
-    
+  
     public void run() {
 	while (true) {
 	    try {
-		if (socket.isConnected())
-		    player.sendMessage(dataIn.readUTF());
+		while (dataIn.available() > 0) {
+		    String msg = dataIn.readUTF();
+    		player.sendMessage(msg);
+		}
 	    } catch (IOException e) {
+		System.out.println("test");
 		e.printStackTrace();
-		player.stop();
+		player.stop();		
 	    }
 	}
     }
