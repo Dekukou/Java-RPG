@@ -32,12 +32,10 @@ public class ServerThread extends Thread{
     }
     
     public void run() {
-	System.out.println("Server Thread " + id + " running.");
 	while (true) {
 	    try	{
 		server.sendToClients(id, dataIn.readUTF());
-	    } catch(IOException ioe) {
-		System.out.println(id + " ERROR reading: " + ioe.getMessage());
+	    } catch(IOException e) {
 		server.remove(id);
 		stop();
 	    }
@@ -50,8 +48,17 @@ public class ServerThread extends Thread{
     }
     
     public void close() throws IOException {
-	if (socket != null)    socket.close();
-	if (dataIn != null)  dataIn.close();
-	if (dataOut != null) dataOut.close();
+	if (socket != null) {
+	    socket.close();
+	    System.out.println("test");
+	}
+	if (dataIn != null) {
+	    dataIn.close();
+	    System.out.println("test2");
+	}
+	if (dataOut != null) {
+	    dataOut.close();
+	    System.out.println("test3");
+	}
     }
 }
