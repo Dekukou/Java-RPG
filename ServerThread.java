@@ -36,6 +36,7 @@ public class ServerThread extends Thread{
 	    try	{
 		server.sendToClients(id, dataIn.readUTF());
 	    } catch(IOException e) {
+		System.out.println("Player n°"+ id + " is deconnected");
 		server.remove(id);
 		stop();
 	    }
@@ -50,15 +51,15 @@ public class ServerThread extends Thread{
     public void close() throws IOException {
 	if (socket != null) {
 	    socket.close();
-	    System.out.println("test");
+	    //	    System.out.println("test");
 	}
 	if (dataIn != null) {
 	    dataIn.close();
-	    System.out.println("test2");
+	    //System.out.println("test2");
 	}
 	if (dataOut != null) {
 	    dataOut.close();
-	    System.out.println("test3");
+	    //System.out.println("test3");
 	}
     }
 }

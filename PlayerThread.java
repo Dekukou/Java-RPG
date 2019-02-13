@@ -1,14 +1,14 @@
 import java.io.*;
 import java.net.*;
 
-public class ClientThread extends Thread {
+public class PlayerThread extends Thread {
     
     private Socket socket = null;
-    private Client player = null;
+    private Player player = null;
     private DataInputStream dataIn = null;
     public boolean isClosed = false;
 
-    public ClientThread(Client player, Socket socket) {
+    public PlayerThread(Player player, Socket socket) {
 	this.player = player;
 	this.socket = socket;
 	open();
@@ -19,7 +19,6 @@ public class ClientThread extends Thread {
 	try {
 	    dataIn = new DataInputStream(socket.getInputStream());
 	} catch (IOException e) {
-	    System.out.println("groot");
 	    e.printStackTrace();
 	    player.stop();
 	}
@@ -39,10 +38,9 @@ public class ClientThread extends Thread {
 	    try {
 		while (dataIn.available() > 0) {
 		    String msg = dataIn.readUTF();
-    		player.sendMessage(msg);
+		    player.sendMessage(msg);
 		}
 	    } catch (IOException e) {
-		System.out.println("test");
 		e.printStackTrace();
 		player.stop();		
 	    }

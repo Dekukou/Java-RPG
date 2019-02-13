@@ -22,8 +22,8 @@ public class Server implements Runnable {
     public void run() {
 	while (thread != null) {
 	    try {
-		addThread(serverSocket.accept());
-		System.out.println("Connected n*" + nb_client);
+		Socket player_id = addThread(serverSocket.accept());
+		System.out.println("Player n°" + player_id.getPort()  + " is connected");
 	    } catch (IOException e) {
 		e.printStackTrace();
 	    }
@@ -38,11 +38,11 @@ public class Server implements Runnable {
     }
 
     public synchronized void sendToClients (int id, String message) {
-	if (message.equals("exit")) {
-	    remove(id);
-	}
+	//	if (message.equals("exit")) {
+	//  remove(id);
+	//}
 	for (int i = 0 ; i < nb_client; i++)
-	    if (clients[i].getID() != id)
+	    //	    if (clients[i].getID() != id)
 		clients[i].send(id + ": "+ message);
     }
 
@@ -58,9 +58,9 @@ public class Server implements Runnable {
 		    //else
 		    //stop();
 	    nb_client--;
-	    System.out.println(nb_client);
+	    //	    System.out.println(nb_client);
 	    if (nb_client == 0) {
-		System.out.println("STOP");
+		//System.out.println("STOP");
 		try {
 		    serverSocket.close();
 		    stop();
@@ -81,7 +81,7 @@ public class Server implements Runnable {
 	} 
     }
 
-    public void addThread(Socket socket) {
+    public Socket addThread(Socket socket) {
 	if (nb_client < clients.length) {
 	    clients[nb_client] = new ServerThread(this, socket);
 	    try {
@@ -92,6 +92,7 @@ public class Server implements Runnable {
 		e.printStackTrace();
 	    }    
 	}
+	return socket;
     }
 
     public void start() {
@@ -109,7 +110,6 @@ public class Server implements Runnable {
     }
 
     public static void main(String args[]) {
-	Server server = null;
-	server = new Server(1027);
+	Server server = new Server(1027);
     }
 }
