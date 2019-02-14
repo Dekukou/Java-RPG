@@ -21,12 +21,12 @@ public class Player implements Runnable {
 
     public Socket connect() {	
 	try {
-	    socket = new Socket(serverAddress, port); 
+	    socket = new Socket(serverAddress, port);
 	    start();
 	} catch (UnknownHostException e) {
 	    e.printStackTrace();
 	} catch (IOException e) {
-	    e.printStackTrace();
+	    System.out.println("No server running on address " + serverAddress + " on port " + port);
 	}
 	return socket;
     }
@@ -35,7 +35,6 @@ public class Player implements Runnable {
 	while (thread != null) {
 	    try {
 		String msg = dataIn.readLine();
-		dataOut.writeUTF("\033[H\033[2J");
 		dataOut.writeUTF(msg);
 		dataOut.flush();
 	    } catch (IOException e) {
@@ -46,14 +45,13 @@ public class Player implements Runnable {
     }
     
     public void sendMessage(String message) {
-	if (message.equals("exit")) {
-	    stop();
-	}
-	else {
-	    System.out.print("\033[H\033[2J");  
+	//	if (message.equals("exit")) {
+	//  stop();
+	//}
+	//else {
 	    System.out.flush();  
 	    System.out.println(message);
-	}
+	    //}
     }
 
     public void start() {

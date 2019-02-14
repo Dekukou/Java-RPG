@@ -6,9 +6,24 @@ public class Server implements Runnable {
     private int port;
     private ServerSocket serverSocket;
     private Thread thread;
-    private ServerThread clients[] = new ServerThread[5];
+    private ServerThread clients[] = new ServerThread[4];
     private int nb_client = 0;
-
+    private String[][] map = {
+	{"H", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "H"},
+	{"H", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", "H"},
+	{"H", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", "H"},
+	{"H", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", "H"},
+	{"H", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", "H"},
+	{"H", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", "H"},
+	{"H", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", "H"},
+	{"H", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", "H"},
+	{"H", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", "H"},
+	{"H", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", "H"},
+	{"H", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", "H"},
+	{"H", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", "H"},
+	{"H", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "H"},
+    };
+    
     public Server(int port) {
 	try {
 	    serverSocket = new ServerSocket(port);
@@ -20,17 +35,33 @@ public class Server implements Runnable {
     }
     
     public void run() {
+	initMap();
 	while (thread != null) {
 	    try {
-		Socket player_id = addThread(serverSocket.accept());
-		System.out.println("Player n°" + player_id.getPort()  + " is connected");
+		if (nb_client <= clients.length) {
+		    Socket player_id = addThread(serverSocket.accept());
+		    System.out.println("Player n°" + player_id.getPort()  + " is connected");
+		}
+		else {
+		    System.out.println("The maximum number of players has already been reached");
+		}
 	    } catch (IOException e) {
 		e.printStackTrace();
 	    }
 	}
     }
     
-    private int getClient(int id) {
+    public void initMap() {
+	for (int i = 0; i < map.length; i++) {
+	    String tmp = "";
+	    for (int j = 0; j < map[i].length; j++)
+		tmp += map[i][j];
+	    System.out.println(tmp);
+	}
+
+    }
+
+    public int getClient(int id) {
 	for (int i = 0; i < nb_client; i++)
 	    if (clients[i].getID() == id)
 		return i;
@@ -38,12 +69,18 @@ public class Server implements Runnable {
     }
 
     public synchronized void sendToClients (int id, String message) {
-	//	if (message.equals("exit")) {
-	//  remove(id);
-	//}
 	for (int i = 0 ; i < nb_client; i++)
-	    //	    if (clients[i].getID() != id)
-		clients[i].send(id + ": "+ message);
+	    if (clients[i].getID() == id)
+                map = clients[i].playerInput(message, map);
+	for (int i = 0 ; i < nb_client; i++) {
+	    clients[i].send("\033[H\033[2J");
+	    for (int j = 0; j < map.length; j++) {
+		String tmp = "";
+		for (int k = 0; k < map[j].length; k++)
+		    tmp += map[j][k];
+		clients[i].send(tmp);
+	    }
+	}	
     }
 
     public synchronized void remove(int id) {
@@ -51,16 +88,10 @@ public class Server implements Runnable {
 	
 	if (client_id != -1) {
 	    ServerThread deletedUser = clients[client_id];
-	    //if (client_id <= nb_client - 1)
-	    //if (nb_client != 1) 
-	    for (int i = client_id; i < nb_client; i++)
+	    for (int i = client_id; i < nb_client - 1; i++)
 		clients[i] = clients[i + 1];
-		    //else
-		    //stop();
 	    nb_client--;
-	    //	    System.out.println(nb_client);
 	    if (nb_client == 0) {
-		//System.out.println("STOP");
 		try {
 		    serverSocket.close();
 		    stop();
@@ -69,24 +100,36 @@ public class Server implements Runnable {
 		}
 	    }
 	    try {
-		//System.out.println("groot");
-		deletedUser.close();
-		//System.out.println("groot2");
+		map = deletedUser.close();
 	    } catch (IOException e) {
 		e.printStackTrace();		
 	    }
-	    //	    System.out.println("groot3");
 	    deletedUser.stop();
-	    //System.out.println("groot4");
 	} 
     }
 
     public Socket addThread(Socket socket) {
 	if (nb_client < clients.length) {
-	    clients[nb_client] = new ServerThread(this, socket);
+	    int[] colorArray = {1, 2, 3, 4};
+	    
+	    if (nb_client > 0) {
+		for (int i = 0; i < nb_client; i++)
+		    for (int j = 0; j < colorArray.length; j++) {
+			if (colorArray[j] == clients[i].getColor()) {
+			    for (int k = j; k < colorArray.length - 1; k++) {
+				colorArray[k] = colorArray[k + 1];
+				System.out.println("groot "+ colorArray[k + 1]);
+			    }
+			}
+			//			break;
+		    }
+	    }
+	    System.out.println("color " + colorArray[0]);
+	    clients[nb_client] = new ServerThread(this, socket, colorArray[0], map);
 	    try {
 		clients[nb_client].open();
 		clients[nb_client].start();
+		sendToClients(nb_client, "");
 		nb_client++;
 	    } catch (IOException e) {
 		e.printStackTrace();
