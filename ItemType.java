@@ -1,5 +1,3 @@
 public enum ItemType {
-
-    SWORD, KEY;
-
+    KEY, SWORD;
 }

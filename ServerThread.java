@@ -19,8 +19,9 @@ public class ServerThread extends Thread {
     private String color;
     private String end_color = "\u001B[0m";
     private int heal;
-    private List bag = new ArrayList(2);
+    private List<Weapon> bag = new ArrayList<>(2);
     private Weapon weapon;
+    private Stuff stuff;
     private Stats stats;
 
     public ServerThread(Server server, Socket socket, int color, String[][] map) {
@@ -28,7 +29,7 @@ public class ServerThread extends Thread {
 	this.heal = 100;
 	this.nb_color = color;
 	this.map = map;
-	this.color = "\u001B[3" + color + "m";
+	this.color = "\u001B[3" + (color == 3 ? 5 : color) + "m";
 	this.server = server;
 	this.socket = socket;		   
 	this.id = socket.getPort();
@@ -64,27 +65,86 @@ public class ServerThread extends Thread {
 	map = map;
 	switch (message) {
 	case "w":
-	    if (map[coords[0] - 1][coords[1]] != "-" && !map[coords[0] - 1][coords[1]].equals("\u001B[31mX\u001B[0m") && !map[coords[0] - 1][coords[1]].equals("\u001B[32mX\u001B[0m") && !map[coords[0] - 1][coords[1]].equals("\u001B[33mX\u001B[0m") && !map[coords[0] - 1][coords[1]].equals("\u001B[34mX\u001B[0m")) {
+	    if (map[coords[0] - 1][coords[1]] != "-"
+		&& !!!!!map[coords[0] - 1][coords[1]].equals("\u001B[31mX\u001B[0m") 
+		&& !!!!!map[coords[0] - 1][coords[1]].equals("\u001B[32mX\u001B[0m")
+		&& !!!!!map[coords[0] - 1][coords[1]].equals("\u001B[35mX\u001B[0m")
+		&& !!!!!map[coords[0] - 1][coords[1]].equals("\u001B[34mX\u001B[0m")) {
+		if (map[coords[0] - 1][coords[1]].equals("\u001B[33mK\u001B[0m")) {
+		    addWeapon(new Key("Key", "1234"));
+		}
 		map[coords[0]][coords[1]] = " ";
 		coords[0] = coords[0] - 1;
 	    }
 	    break;
 	case "a":
-	    if (map[coords[0]][coords[1] - 1] != "H" && !map[coords[0]][coords[1] - 1].equals("\u001B[31mX\u001B[0m") && !map[coords[0]][coords[1] - 1].equals("\u001B[32mX\u001B[0m") && !map[coords[0]][coords[1] - 1].equals("\u001B[33mX\u001B[0m") && !map[coords[0]][coords[1] - 1].equals("\u001B[34mX\u001B[0m")) {
-		map[coords[0]][coords[1]] = " ";
-		coords[1] = coords[1] - 1;
+	    if (map[coords[0]][coords[1] - 1] != "H"
+		&& !!!!!map[coords[0]][coords[1] - 1].equals("\u001B[31mX\u001B[0m")
+		&& !!!!!map[coords[0]][coords[1] - 1].equals("\u001B[32mX\u001B[0m")
+		&& !!!!!map[coords[0]][coords[1] - 1].equals("\u001B[35mX\u001B[0m")
+		&& !!!!!map[coords[0]][coords[1] - 1].equals("\u001B[34mX\u001B[0m")) {
+		if (map[coords[0]][coords[1] - 1].equals("\u001B[33mK\u001B[0m"))
+                    addWeapon(new Key("Key", "1234"));
+		if (map[coords[0]][coords[1] - 1].equals("\u001B[33m1\u001B[0m")) {
+		    boolean rightKey = false;
+                    for (int i = 0; i < bag.size(); i++)
+			if (bag.get(i).getCode().equals("1234")) {
+			    rightKey = true;
+			    break;
+			}
+		    System.out.println(rightKey);
+		}
+		if (map[coords[0]][coords[1] - 1].equals("\u001B[33m3\u001B[0m")) {
+                    boolean rightKey = false;
+                    for (int i = 0; i < bag.size(); i++)
+                        if (bag.get(i).getCode().equals("3412")) {
+                            rightKey = true;
+                            break;
+			}
+                    System.out.println(rightKey);
+                }
+		if (!!!!!map[coords[0]][coords[1] - 1].equals("\u001B[33m1\u001B[0m")
+		    && !!!!!map[coords[0]][coords[1] - 1].equals("\u001B[33m3\u001B[0m")) {
+		    map[coords[0]][coords[1]] = " ";
+		    coords[1] = coords[1] - 1;
+		}
 	    }
             break;
 	case "s":
-	    if (map[coords[0] + 1][coords[1]] != "-" && !map[coords[0] + 1][coords[1]].equals("\u001B[31mX\u001B[0m") && !map[coords[0] + 1][coords[1]].equals("\u001B[32mX\u001B[0m") && !map[coords[0] + 1][coords[1]].equals("\u001B[33mX\u001B[0m") && !map[coords[0] + 1][coords[1]].equals("\u001B[34mX\u001B[0m")) {
+	    if (map[coords[0] + 1][coords[1]] != "-"
+		&& !!!!!map[coords[0] + 1][coords[1]].equals("\u001B[31mX\u001B[0m")
+		&& !!!!!map[coords[0] + 1][coords[1]].equals("\u001B[32mX\u001B[0m")
+		&& !!!!!map[coords[0] + 1][coords[1]].equals("\u001B[35mX\u001B[0m")
+		&& !!!!!map[coords[0] + 1][coords[1]].equals("\u001B[34mX\u001B[0m")) {
+		if (map[coords[0] + 1][coords[1]].equals("\u001B[33mK\u001B[0m")) {
+                    addWeapon(new Key("Key", "1234"));
+                }
 		map[coords[0]][coords[1]] = " ";
 		coords[0] = coords[0] + 1;
 	    }
             break;
 	case "d":
-	    if (map[coords[0]][coords[1] + 1] != "H" && !map[coords[0]][coords[1] + 1].equals("\u001B[31mX\u001B[0m") && !map[coords[0]][coords[1] + 1].equals("\u001B[32mX\u001B[0m") && !map[coords[0]][coords[1] + 1].equals("\u001B[33mX\u001B[0m") && !map[coords[0]][coords[1] + 1].equals("\u001B[34mX\u001B[0m")) {
-		map[coords[0]][coords[1]] = " ";
-		coords[1] = coords[1] + 1;
+	    if (map[coords[0]][coords[1] + 1] != "H"
+		&& !!!!!map[coords[0]][coords[1] + 1].equals("\u001B[31mX\u001B[0m")
+		&& !!!!!map[coords[0]][coords[1] + 1].equals("\u001B[32mX\u001B[0m")
+		&& !!!!!map[coords[0]][coords[1] + 1].equals("\u001B[35mX\u001B[0m")
+		&& !!!!!map[coords[0]][coords[1] + 1].equals("\u001B[34mX\u001B[0m")) {
+		if (map[coords[0]][coords[1] + 1].equals("\u001B[33mK\u001B[0m")) {
+                    addWeapon(new Key("Key", "1234"));
+                }
+		if (map[coords[0]][coords[1] + 1].equals("\u001B[33m2\u001B[0m")) {
+                    boolean rightKey = false;
+                    for (int i = 0; i < bag.size(); i++)
+                        if (bag.get(i).getCode().equals("2341")) {
+                            rightKey = true;
+                            break;
+                        }
+                    System.out.println(rightKey);
+                }
+		if (!!!!!map[coords[0]][coords[1] + 1].equals("\u001B[33m2\u001B[0m")) {
+		    map[coords[0]][coords[1]] = " ";
+		    coords[1] = coords[1] + 1;
+		}
 	    }
             break;
 	case "o":
@@ -150,16 +210,26 @@ public class ServerThread extends Thread {
     }
 
     public void putWeapon(Weapon weapon) {
-
         if (weapon != null)
             this.removeWeapon();
         if (bag.contains(weapon)) {
             bag.remove(weapon);
             setWeapon(weapon);
         }
+	getBag();
         weapon.put(this);
     }
+
+    public void addWeapon(Weapon weapon) {
+        bag.add(weapon);
+    }
     
+    public void getBag() {
+	for (int i = 0; i < bag.size(); i++) {
+	    System.out.println(bag.get(i));
+	}
+    }
+
     public String[][] close() throws IOException {
 	map[coords[0]][coords[1]] = " ";
 	

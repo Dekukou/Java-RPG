@@ -11,15 +11,15 @@ public class Server extends Stats implements Runnable {
     private String[][] map = {
 	{"H", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "H"},
 	{"H", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", "H"},
-	{"3", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", "H"},
+	{"\u001B[33m3\u001B[0m", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", "H"},
 	{"H", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", "H"},
 	{"H", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", "H"},
 	{"H", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", "H"},
 	{"H", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", "H"},
 	{"H", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", "H"},
-	{"H", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", "2"},
+	{"H", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", "\u001B[33m2\u001B[0m"},
 	{"H", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", "H"},
-	{"1", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", "H"},
+	{"\u001B[33m1\u001B[0m", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", "H"},
 	{"H", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", "H"},
 	{"H", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", "H"},
 	{"H", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "H"},
@@ -36,6 +36,7 @@ public class Server extends Stats implements Runnable {
     }
     
     public void run() {
+	randomKey();
 	initMap();
 	while (thread != null) {
 	    try {
@@ -75,7 +76,8 @@ public class Server extends Stats implements Runnable {
                 map = clients[i].playerInput(message, map);
 	for (int i = 0 ; i < nb_client; i++) {
 	    clients[i].send("\033[H\033[2J");
-	    clients[i].send("" + clients[i].getHeal());
+	    if (clients[i].getDisplayScore())
+		clients[i].send("Health: " + clients[i].getHeal());
 	    for (int j = 0; j < map.length; j++) {
 		String tmp = "";
 		for (int k = 0; k < map[j].length; k++)
@@ -83,6 +85,17 @@ public class Server extends Stats implements Runnable {
 		clients[i].send(tmp);
 	    }
 	}	
+    }
+
+    public void randomKey() {
+	int i = 0;
+	int j = 0;
+
+	while (map[i][j] != " ") {
+            i = 1 + (int)(Math.random() * (map.length - 2));
+            j = 1 + (int)(Math.random() * (map[0].length - 2));
+        }
+        map[i][j] = "\u001B[33m" + "K" + "\u001B[0m";
     }
 
     public synchronized void remove(int id) {

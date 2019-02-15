@@ -5,8 +5,9 @@ public class Key extends Weapon {
     private Stats stats;
     
     public Key(String name, String code) {
-        super(name);
+        super(name, code);
         this.type = ItemType.KEY;
+	//	this.code = code;
     }
 
     public void put(ServerThread player) {
