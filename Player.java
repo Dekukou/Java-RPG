@@ -1,8 +1,9 @@
 import java.io.*;
 import java.net.*;
+import java.util.List;
+import java.util.ArrayList;
 
 public class Player implements Runnable {
-
 
     private Socket socket = null;
     private PlayerThread player = null;
@@ -45,13 +46,8 @@ public class Player implements Runnable {
     }
     
     public void sendMessage(String message) {
-	//	if (message.equals("exit")) {
-	//  stop();
-	//}
-	//else {
-	    System.out.flush();  
-	    System.out.println(message);
-	    //}
+	System.out.flush();  
+	System.out.println(message);
     }
 
     public void start() {

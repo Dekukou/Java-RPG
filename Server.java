@@ -1,7 +1,7 @@
 import java.io.*;
 import java.net.*;
 
-public class Server implements Runnable {
+public class Server extends Stats implements Runnable {
 
     private int port;
     private ServerSocket serverSocket;
@@ -11,14 +11,15 @@ public class Server implements Runnable {
     private String[][] map = {
 	{"H", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "H"},
 	{"H", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", "H"},
+	{"3", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", "H"},
 	{"H", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", "H"},
 	{"H", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", "H"},
 	{"H", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", "H"},
 	{"H", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", "H"},
 	{"H", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", "H"},
+	{"H", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", "2"},
 	{"H", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", "H"},
-	{"H", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", "H"},
-	{"H", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", "H"},
+	{"1", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", "H"},
 	{"H", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", "H"},
 	{"H", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", "H"},
 	{"H", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "H"},
@@ -74,6 +75,7 @@ public class Server implements Runnable {
                 map = clients[i].playerInput(message, map);
 	for (int i = 0 ; i < nb_client; i++) {
 	    clients[i].send("\033[H\033[2J");
+	    clients[i].send("" + clients[i].getHeal());
 	    for (int j = 0; j < map.length; j++) {
 		String tmp = "";
 		for (int k = 0; k < map[j].length; k++)
@@ -114,17 +116,11 @@ public class Server implements Runnable {
 	    
 	    if (nb_client > 0) {
 		for (int i = 0; i < nb_client; i++)
-		    for (int j = 0; j < colorArray.length; j++) {
-			if (colorArray[j] == clients[i].getColor()) {
-			    for (int k = j; k < colorArray.length - 1; k++) {
+		    for (int j = 0; j < colorArray.length; j++)
+			if (colorArray[j] == clients[i].getColor())
+			    for (int k = j; k < colorArray.length - 1; k++)
 				colorArray[k] = colorArray[k + 1];
-				System.out.println("groot "+ colorArray[k + 1]);
-			    }
-			}
-			//			break;
-		    }
 	    }
-	    System.out.println("color " + colorArray[0]);
 	    clients[nb_client] = new ServerThread(this, socket, colorArray[0], map);
 	    try {
 		clients[nb_client].open();
